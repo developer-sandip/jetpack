@@ -1,11 +1,12 @@
 <?php
 
-if ( ! class_exists( 'PolldaddyShortcode' ) ) {
-	/**
-* Class wrapper for polldaddy shortcodes
+if ( ! class_exists( 'CrowdSignalShortcode' ) ) {
+
+/**
+* Class wrapper for Crowd Signal shortcodes
 */
 
-class PolldaddyShortcode {
+class CrowdSignalShortcode {
 
 	static $add_script = false;
 	static $scripts = false;
@@ -15,8 +16,10 @@ class PolldaddyShortcode {
 	 */
 	function __construct() {
 		if ( defined( 'GLOBAL_TAGS' ) == false ) {
-			add_shortcode( 'polldaddy', array( $this, 'polldaddy_shortcode' ) );
-			add_filter( 'pre_kses', array( $this, 'polldaddy_embed_to_shortcode' ) );
+			add_shortcode( 'crowdsignal', array( $this, 'crowdsignal_shortcode' ) );
+			add_shortcode( 'polldaddy', array( $this, 'crowdsignal_shortcode' ) );
+
+			add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
 		}
 		add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
 		add_action( 'infinite_scroll_render', array( $this, 'polldaddy_shortcode_infinite' ), 11 );
@@ -75,12 +78,12 @@ CONTAINER;
 	}
 
 	/*
-	 * Polldaddy Poll Embed script - transforms code that looks like that:
+	 * Crowd Signal Poll Embed script - transforms code that looks like that:
 	 * <script type="text/javascript" charset="utf-8" async src="http://static.polldaddy.com/p/123456.js"></script>
 	 * <noscript><a href="http://polldaddy.com/poll/123456/">What is your favourite color?</a></noscript>
-	 * into the [polldaddy poll=...] shortcode format
+	 * into the [crowdsignal poll=...] shortcode format
 	 */
-	function polldaddy_embed_to_shortcode( $content ) {
+	function crowdsignal_embed_to_shortcode( $content ) {
 
 		if ( ! is_string( $content ) || false === strpos( $content, 'polldaddy.com/p/' ) ) {
 			return $content;
@@ -105,9 +108,9 @@ CONTAINER;
 				$id = (int) $match[2];
 
 				if ( $id > 0 ) {
-					$content = str_replace( $match[0], " [polldaddy poll=$id]", $content );
+					$content = str_replace( $match[0], " [crowdsignal poll=$id]", $content );
 					/** This action is documented in modules/shortcodes/youtube.php */
-					do_action( 'jetpack_embed_to_shortcode', 'polldaddy', $id );
+					do_action( 'jetpack_embed_to_shortcode', 'crowdsignal', $id );
 				}
 			}
 		}
@@ -117,10 +120,9 @@ CONTAINER;
 
 	/**
 	 * Shortcode for polldadddy
-	 * [polldaddy poll|survey|rating="123456"]
-	 *
-	 * */
-	function polldaddy_shortcode( $atts ) {
+	 * [crowdsignal poll|survey|rating="123456"]
+	 */
+	function crowdsignal_shortcode( $atts ) {
 		global $post;
 		global $content_width;
 
@@ -147,10 +149,10 @@ CONTAINER;
 			'visit'      => 'single',
 			'domain'     => '',
 			'id'         => '',
-		), $atts, 'polldaddy' ) );
+		), $atts, 'crowdsignal' ) );
 
 		if ( ! is_array( $atts ) ) {
-			return '<!-- Polldaddy shortcode passed invalid attributes -->';
+			return '<!-- Crowd Signal shortcode passed invalid attributes -->';
 		}
 
 		$inline          = ! in_the_loop();
@@ -561,7 +563,7 @@ SCRIPT;
 }
 
 // kick it all off
-new PolldaddyShortcode();
+new CrowdSignalShortcode();
 
 if ( ! function_exists( 'polldaddy_link' ) ) {
 	// http://polldaddy.com/poll/1562975/?view=results&msg=voted
